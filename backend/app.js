@@ -7,6 +7,7 @@ const usersRoutes = require("./Routes/usersRoutes");
 const globalErrorHandler = require("./Controllers/errorController");
 const hallRoutes = require("./Routes/hallRoutes");
 const departmentRoutes = require("./Routes/departmentRoutes");
+const lecturerRoutes = require("./Routes/lecturerRoutes");
 const customError = require("./utils/customError");
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/v1/courses", courserRoutes);
 app.use("/api/v1/users", usersRoutes);
 app.use("/api/v1/halls", hallRoutes);
 app.use("/api/v1/departments", departmentRoutes);
+app.use("/api/v1/lecturers", lecturerRoutes);
 
 // Node engine v5 replaces "*" with "{*path} "
 app.all("{*path}", (req, res, next) => {
