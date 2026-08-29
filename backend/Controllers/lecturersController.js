@@ -8,7 +8,7 @@ exports.getAllLecturers = AsyncErrorHandler(async (req, res, next) => {
   l.user_id,
   u.full_name,
   u.email,
-  l.rank,
+  l.lecturer_rank,
   l.invigilation_per_week,
   d.id AS department_id,
   d.department_name,
@@ -19,14 +19,14 @@ exports.getAllLecturers = AsyncErrorHandler(async (req, res, next) => {
   'course_code', c.course_code,
   'course_title', c.course_title,
   'course_level', c.course_level,
-  'is_lead', cl.is_lead,
+  'is_lead', cl.is_lead
   )
   ) FILTER(WHERE c.id IS NOT NULL), '[]'
   ) AS assigned_courses
   FROM lecturers l
   JOIN users u ON l.user_id = u.id
-  JOIN department d ON l.department_id = d.id
-  LEFT JOIN course_lecturers cl ON l.id = cl.lecturer_id
+  JOIN departments d ON l.department_id = d.id
+  LEFT JOIN course_lecturers cl ON l.id = cl.lecturers_id
   LEFT JOIN courses c ON cl.course_id = c.id 
   GROUP BY l.id, u.id, d.id
   ORDER BY l.id ASC;
@@ -51,7 +51,7 @@ exports.getLecturerById = AsyncErrorHandler(async (req, res, next) => {
             l.user_id,
             u.full_name,
             u.email,
-            l.rank,
+            l.lecturer_rank,
             l.invigilation_per_week,
             d.id AS department_id,
             d.department_name,
@@ -59,20 +59,21 @@ exports.getLecturerById = AsyncErrorHandler(async (req, res, next) => {
                 COALESCE(
                     json_agg(
                         json_build_object(
-                            'course_id', c.id
-                            'course_title', c.course_title
-                            'course_level', c.course_level
+                            'course_id', c.id,
+                            'course_title', c.course_title,
+                            'course_level', c.course_level,
                             'is_lead', cl.is_lead
                         )
                     ) FILTER (WHERE c.id IS NOT NULL), '[]'
                 )
             AS assigned_courses
             FROM lecturers l
-            JOIN department d ON d.id = l.department_id
+            JOIN departments d ON d.id = l.department_id
             JOIN users u ON u.id = l.user_id
-            LEFT JOIN courses_lecturers cl ON l.id = cl.lecturers_id
+            LEFT JOIN course_lecturers cl ON l.id = cl.lecturers_id
             LEFT JOIN courses c ON cl.course_id = c.id
             WHERE l.id=$1
+            GROUP BY l.id, u.id, d.id;
     `;
 
   const result = await pool.query(query, [id]);
