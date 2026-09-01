@@ -179,3 +179,61 @@ exports.deleteCourse = asyncErrorHandler(async (req, res, next) => {
     },
   });
 });
+
+exports.assignLecturerToCourse = asyncErrorHandler(async (req, res, next) => {
+  //The course ID comes from the URL endpoint: POST /api/courses/1/lecturers $\rightarrow$ req.params.id = 1.
+  const { id: course_id } = req.params;
+
+  const { lecturers_id, is_lead } = req.body;
+
+  if (!lecturers_id) {
+    const err = new customError("lecturers_id is required", 400);
+    return next(err);
+  }
+
+  // If this lecturer is being marked as Lead, strip the lead title from any previous lecturer for this course
+  if (is_lead) {
+    await pool.query(
+      "UPDATE course_lecturers SET is_lead = FALSE WHERE course_id = $1",
+      [course_id],
+    );
+  }
+
+  const query = `INSERT INTO 
+                  course_lecturers(course_id, lecturers_id, is_lead) 
+                  VALUES($1,$2,$3) 
+                  ON CONFLICT (course_id, lecturers_id) 
+                  DO UPDATE SET is_lead = EXCLUDED.is_lead
+                  RETURNING *`;
+  const values = [course_id, lecturers_id, is_lead];
+
+  const result = await pool.query(query, values);
+
+  if (result.rows.length === 0) {
+    return next(new customError("Not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Lecturer assigned successfully",
+    body: {
+      course_lecturers: result.rows[0],
+    },
+  });
+});
+exports.removeLectuer = asyncErrorHandler(async (req, res, next) => {
+  const { id: course_id, lecturer_id: lecturers_id } = req.params;
+  const query = `DELETE FROM course_lecturers WHERE id=$1 AND lecturers_id = $2 RETURNING *`;
+  const values = [course_id, lecturers_id];
+  const result = await pool.query(query, values);
+
+  if (result.rows.length === 0) {
+    return next(new customError("Lecturer not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Lecturer deleted successfully",
+    body: null,
+  });
+});

@@ -15,4 +15,10 @@ router
   .put(coursesController.updateCourse)
   .delete(coursesController.deleteCourse);
 
+router.route("/:id/lecturers").post(coursesController.assignLecturerToCourse);
+
+router
+  .route("/:id/lecturers/:lecturer_id")
+  .delete(coursesController.removeLectuer);
+
 module.exports = router;
