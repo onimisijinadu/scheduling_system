@@ -66,7 +66,7 @@ export const Login = () => {
     <>
       <div className="flex flex-col lg:flex-row items-center justify-center mx-auto w-full max-w-4xl min-h-screen bg-bg">
         {/* LEFT DESC ON LARGE SCREEN */}
-        <div className="flex flex-col items-center justify-center w-full min-h-[172px] lg:h-145 bg-bg-second lg:border border-[#BDC8D1] px-4">
+        <div className="flex flex-col items-center justify-center w-full min-h-[172px] lg:h-139 bg-bg-second lg:border border-[#BDC8D1] px-4">
           <div className="w-30 h-20 mb-8">
             <img
               src="/buklogo.svg"
@@ -85,7 +85,7 @@ export const Login = () => {
           </p>
         </div>
         {/* LOGIN PAGE INPUTS AND BUTTON */}
-        <div className="flex  flex-col items-center gap-2 w-full min-h-139.25 py-5 lg:p-12 border border-[#BDC8D1]">
+        <div className="flex  flex-col items-center gap-2 w-full min-h-139 py-5 lg:px-12 lg:py-10 border border-[#BDC8D1]">
           <FormWrapper onSubmit={handleSubmit} action={"Sign In"}>
             <SelectOptions
               labelFor={"Role"}
@@ -124,7 +124,7 @@ export const Login = () => {
               />
             </div>
           </FormWrapper>
-          <div className="flex justify-center items-center text-center pt-6 w-full">
+          <div className="flex justify-center items-center text-center pt-5 w-full">
             <Link
               to="/"
               className="text-center regular text-sm leading-5 text-accent"
@@ -132,7 +132,7 @@ export const Login = () => {
               Forgot your password
             </Link>
           </div>
-          <div className="pt-8 w-full flex flex-col items-center">
+          <div className="pt-6 w-full flex flex-col items-center">
             <div className="border-b border-b-[#3E4850] w-full"></div>
             <div className="flex justify-center  w-full text-center">
               <p className="pt-5 text-sm text-center leading-5">

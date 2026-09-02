@@ -2,7 +2,7 @@ export const FormWrapper = ({ children, onSubmit, action, className }) => {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col space-y-20 max-w-[351px] lg:w-[351px] h-fit"
+      className="flex flex-col space-y-20 max-w-[351px] lg:w-[351px] max-h-139"
     >
       {children}
       <button
