@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   BrowserRouter as Router,
+  Navigate,
   Route,
   Routes,
 } from 'react-router';
@@ -22,6 +23,7 @@ export const AppRouter = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<UserDashboard />} />
@@ -40,6 +42,8 @@ export const AppRouter = () => {
             element={<NlpCommandInterface />}
           />
           <Route path="/dashboard/venues" element={<Venues />} />
+          {/* Catch-all 404 redirect */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Route>
       </Routes>
     </Router>
