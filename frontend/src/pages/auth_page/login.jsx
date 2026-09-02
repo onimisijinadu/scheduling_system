@@ -4,6 +4,7 @@ import {
   Link,
   useNavigate,
 } from 'react-router';
+import { toast } from 'react-toastify';
 
 import {
   FormInput,
@@ -38,18 +39,25 @@ export const Login = () => {
     try {
       const validateError = InputValidator(formData);
 
-      if (Object.keys(validateError).length > 0) {
-        setErrors(validateError);
+      const errorKeys = Object.keys(validateError || {});
+
+      if (errorKeys.length > 0) {
+        // Displays the first validation error to keep UI tidy
+        toast.error(validateError[errorKeys[0]]);
         return;
       }
 
       console.log(formData);
       navigate("/dashboard");
+      toast.success("Welcome...");
 
       // Once you hook up your API, place your await call here:
       // await loginUser(formData);
     } catch (err) {
       console.log(err.message);
+      toast.error(
+        err.message || "Login failed. Please check your credentials.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -102,9 +110,6 @@ export const Login = () => {
                 type={"email"}
                 placeholder={"user@university.edu"}
               />
-              {errors.email && (
-                <span className="text-red-500 text-xs">{errors.email}</span>
-              )}
             </div>
             <div>
               <FormInput
@@ -117,9 +122,6 @@ export const Login = () => {
                 type={"password"}
                 placeholder={"••••••••"}
               />
-              {errors.password && (
-                <span className="text-red-500 text-xs">{errors.password}</span>
-              )}
             </div>
           </FormWrapper>
           <div className="flex justify-center items-center text-center pt-6 w-full">
