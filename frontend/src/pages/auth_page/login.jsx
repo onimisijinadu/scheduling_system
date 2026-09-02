@@ -1,12 +1,59 @@
-import { Link } from 'react-router';
+import { useState } from 'react';
+
+import {
+  Link,
+  useNavigate,
+} from 'react-router';
 
 import {
   FormInput,
   FormWrapper,
-} from '../component/form';
-import { SelectOptions } from '../component/selectOption';
+} from '../../component/form';
+import { SelectOptions } from '../../component/selectOption';
+import InputValidator from '../../utils/InputValidator';
 
 export const Login = () => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    role: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const validateError = InputValidator(formData);
+
+      if (Object.keys(validateError).length > 0) {
+        setErrors(validateError);
+        return;
+      }
+
+      console.log(formData);
+      navigate("/dashboard");
+
+      // Once you hook up your API, place your await call here:
+      // await loginUser(formData);
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <>
       <div className="flex flex-col lg:flex-row items-center justify-center mx-auto w-full max-w-4xl min-h-screen bg-bg">
@@ -31,31 +78,49 @@ export const Login = () => {
         </div>
         {/* LOGIN PAGE INPUTS AND BUTTON */}
         <div className="flex  flex-col items-center gap-2 w-full min-h-139.25 py-5 lg:p-12 border border-[#BDC8D1]">
-          <FormWrapper action={"Sign In"}>
+          <FormWrapper onSubmit={handleSubmit} action={"Sign In"}>
             <SelectOptions
               labelFor={"Role"}
               label={"Role"}
               id={"role"}
               name={"role"}
+              value={formData.role}
+              onChange={handleChange}
             >
               <option value="">Faculty Exam Officer</option>
               <option value="">Lecturer</option>
               <option value="">Admin</option>
             </SelectOptions>
-            <FormInput
-              labelFor={"email"}
-              label={"Email Address"}
-              required
-              type={"email"}
-              placeholder={"user@university.edu"}
-            />
-            <FormInput
-              labelFor={"password"}
-              label={"Password"}
-              required
-              type={"password"}
-              placeholder={"••••••••"}
-            />
+            <div>
+              <FormInput
+                labelFor={"email"}
+                label={"Email Address"}
+                name={"email"}
+                value={formData.email}
+                onChange={handleChange}
+                required
+                type={"email"}
+                placeholder={"user@university.edu"}
+              />
+              {errors.email && (
+                <span className="text-red-500 text-xs">{errors.email}</span>
+              )}
+            </div>
+            <div>
+              <FormInput
+                labelFor={"password"}
+                label={"Password"}
+                name={"password"}
+                value={formData.password}
+                onChange={handleChange}
+                required
+                type={"password"}
+                placeholder={"••••••••"}
+              />
+              {errors.password && (
+                <span className="text-red-500 text-xs">{errors.password}</span>
+              )}
+            </div>
           </FormWrapper>
           <div className="flex justify-center items-center text-center pt-6 w-full">
             <Link
