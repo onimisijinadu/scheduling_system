@@ -95,9 +95,9 @@ export const Login = () => {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="">Faculty Exam Officer</option>
-              <option value="">Lecturer</option>
-              <option value="">Admin</option>
+              <option value="faculty_exam_officer">Faculty Exam Officer</option>
+              <option value="lecturer">Lecturer</option>
+              <option value="admin">Admin</option>
             </SelectOptions>
             <div>
               <FormInput
