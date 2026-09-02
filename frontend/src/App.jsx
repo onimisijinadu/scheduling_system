@@ -1,16 +1,17 @@
-import { useState } from "react";
-import "./App.css";
+// import "./App.css";
+import { AppRouter } from './routes/AppRouter';
 
 function App() {
   return (
     <>
-      <section id="center">
+      <AppRouter />
+      {/* <section id="center">
         <div className="hero"></div>
         <div></div>
       </section>
 
       <div className="ticks"></div>
-      <section id="spacer"></section>
+      <section id="spacer"></section> */}
     </>
   );
 }
