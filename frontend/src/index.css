@@ -8,9 +8,10 @@
   --color-bg: #ffffff;
   --color-bg-second: #f8f9ff;
   --color-bg-third: #5c647a;
-  --color-signin-color2: #bdc8d1;
+  --color-border: #bdc8d1;
   --color-accent: #00aeef;
   --color-accent-bg: #00658d7c;
+  --color-accent-text: #00658d;
   --color-contact-bg: #bdc8d1;
 
   --font-sans: "Inter", sans-serif;
@@ -22,7 +23,9 @@
 .regular {
   font: 400;
 }
-
+.jetbrainsmono {
+  font-family: JetBrains Mono;
+}
 body {
   margin: 0;
   font-family: var(--font-sans);

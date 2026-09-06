@@ -1,14 +1,39 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
 import { Outlet } from 'react-router';
 
 import { SideBar } from '../../component/SideBar';
+import { TopBar } from '../../component/TopBar';
 
 export const DashboardLayout = () => {
+  const sideNavRef = useRef(null);
+
+  const [sidebarToggle, setSideBarToggle] = useState(false);
+
+  const handleClick = () => {
+    setSideBarToggle((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {};
+  }, []);
   return (
-    <div className="dashboard-layout">
-      <SideBar />
-      <main>
-        <Outlet />
-      </main>
+    <div className="flex h-screen max-w-screen overflow-y-auto relative">
+      <SideBar
+        rel={sideNavRef}
+        toggleSideBar={handleClick}
+        isOpen={sidebarToggle}
+      />
+      <div className="flex flex-1 flex-col">
+        <TopBar toggleSideBar={handleClick} isOpen={sidebarToggle} />
+        <main className="flex-1 overflow-y-auto p-6 sm:mb-0 bg-[#E5EEFF]">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

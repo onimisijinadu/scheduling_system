@@ -25,7 +25,7 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard/" element={<DashboardLayout />}>
           <Route index element={<UserDashboard />} />
           <Route path="/dashboard/course_page" element={<CoursesPage />} />
           <Route

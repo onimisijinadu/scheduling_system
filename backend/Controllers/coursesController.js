@@ -5,25 +5,27 @@ const asyncErrorHandler = require("../utils/asyncErrorHandler");
 exports.getAllCourses = asyncErrorHandler(async (req, res, next) => {
   // const courses = await pool.query("SELECT * FROM courses ORDER BY id ASC");
   const query = `
-  SELECT 
+  SELECT
     c.*,
     COALESCE(
       json_agg(
         json_build_object(
           'lecturer_id', l.id,
           'full_name', u.full_name,
-          'rank', l.rank
+          'rank', l.lecturer_rank
         )
       ) FILTER (WHERE l.id IS NOT NULL),
       '[]'
     ) AS lecturers
   FROM courses c
   LEFT JOIN course_lecturers cl ON c.id = cl.course_id
-  LEFT JOIN lecturers l ON cl.lecturer_id = l.id
+  LEFT JOIN lecturers l ON cl.lecturers_id = l.id
   LEFT JOIN users u ON l.user_id = u.id
   GROUP BY c.id
   ORDER BY c.id ASC;
   `;
+
+  // const query = "SELECT * FROM courses";
 
   const courses = await pool.query(query);
 
