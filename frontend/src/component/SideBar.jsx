@@ -3,7 +3,6 @@ import {
   CodeSquare,
   GraduationCap,
   LayoutDashboardIcon,
-  MapPin,
   Table,
   User2,
   UserSquare,
@@ -24,11 +23,6 @@ const NavLinks = [
     name: "Courses",
     path: "/dashboard/course_page",
     icon: GraduationCap,
-  },
-  {
-    name: "Venues",
-    path: "/dashboard/venues",
-    icon: MapPin,
   },
   {
     name: "Lecturers",

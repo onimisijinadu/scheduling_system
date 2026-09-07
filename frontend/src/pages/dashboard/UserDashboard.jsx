@@ -1,19 +1,17 @@
 import { DashboardCard } from './component/DashboardCard';
 import { DashboardHeader } from './component/DashboardHeader';
+import { RecentAdjustment } from './component/RecentAdjustment';
+import { UpcomingSessions } from './component/UpcomingSession';
 
 export const UserDashboard = () => {
-  // const {
-  //   data: courses,
-  //   error,
-  //   isLoading,
-  // } = useFetch("http://localhost:5000/api/v1/courses/", "courses");
-
-  // if (isLoading) return <div>Loading courses...</div>;
-
   return (
     <>
       <DashboardHeader />
       <DashboardCard />
+      <div className="flex flex-col lg:flex-row gap-4 w-full pt-6 ">
+        <UpcomingSessions />
+        <RecentAdjustment />
+      </div>
     </>
   );
 };
