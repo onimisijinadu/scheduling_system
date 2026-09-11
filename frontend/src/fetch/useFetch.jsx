@@ -32,8 +32,8 @@ export const useFetch = (dataUrl, itemKey) => {
         setData(Array.isArray(result) ? result : result?.data?.[itemKey] || []);
       } catch (error) {
         if (error.name !== "AbortError") {
-          console.error("Fetch Error:", err.message);
-          setError(err.message || "Failed to fetch data");
+          console.error("Fetch Error:", error.message);
+          setError(error.message || "Failed to fetch data");
         }
       } finally {
         setIsLoading(false);
@@ -43,7 +43,7 @@ export const useFetch = (dataUrl, itemKey) => {
     fetchData();
 
     // Cleanup on unmount or URL change
-    return controller.abort();
+    return () => controller.abort();
   }, [dataUrl, itemKey]);
 
   return { data, error, isLoading };

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { toast } from 'react-toastify';
 
+import { API_ENDPOINTS } from '../../../config/api';
 import { useFetch } from '../../../fetch/useFetch';
 
 export const DashboardCard = () => {
@@ -9,7 +10,7 @@ export const DashboardCard = () => {
     data: stats,
     isLoading,
     error,
-  } = useFetch("http://localhost:5000/api/v1/dashboardStats", "stats");
+  } = useFetch(API_ENDPOINTS.DASHBOARDSTATS, "stats");
 
   useEffect(() => {
     console.log(stats);
@@ -18,7 +19,14 @@ export const DashboardCard = () => {
     }
   }, [error]);
 
-  if (isLoading) return <div>Loading stats...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-accent" />
+        <span>Loading...</span>
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-4 overflow-hidden">
       <div className="p-4 rounded-sm bg-bg border border-border flex flex-col gap-3">

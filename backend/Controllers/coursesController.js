@@ -7,12 +7,14 @@ exports.getAllCourses = asyncErrorHandler(async (req, res, next) => {
   const query = `
   SELECT
     c.*,
+    (SELECT code FROM departments WHERE id = c.department_id) AS code,
     COALESCE(
       json_agg(
         json_build_object(
           'lecturer_id', l.id,
           'full_name', u.full_name,
-          'rank', l.lecturer_rank
+          'rank', l.lecturer_rank,
+          'is_lead',cl.is_lead
         )
       ) FILTER (WHERE l.id IS NOT NULL),
       '[]'
@@ -47,10 +49,10 @@ exports.getCourseById = asyncErrorHandler(async (req, res, next) => {
       COALESC(
         json_agg(
           json_build_object(  
-            'lecturers_id','l.id',
-            'full_name','u.full_name',
-            'is_lead','cl.is_lead',
-            'rank',''l.rank'
+            'lecturers_id',l.id,
+            'full_name',u.full_name,
+            'is_lead',cl.is_lead,
+            'rank',l.rank
           )
         ) FILTER (WHERE l.id IS NOT NULL), 
          '[]'

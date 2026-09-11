@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 
-export const Button = ({ text, className, ...props }) => {
+export const Button = ({ text, children, className, ...props }) => {
   return (
     <motion.button
       whileHover={{ scale: 1.05, y: -2 }}
@@ -10,6 +10,7 @@ export const Button = ({ text, className, ...props }) => {
       className={`cursor-pointer font-sans regular text-sm leading-5 text-center w-fit whitespace-nowrap px-4 py-2 ${className ? className : "text-bg bg-accent"} rounded-sm`}
     >
       {text}
+      {children}
     </motion.button>
   );
 };

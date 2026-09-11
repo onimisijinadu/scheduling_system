@@ -39,7 +39,7 @@ export const RecentAdjustment = () => {
       </header>
       <div className="w-full max-w-[calc(100vw-3rem)] mx-auto min-w-0 overflow-hidden rounded-lg border border-[#BDC8D1] bg-white">
         <div className="w-full overflow-x-auto [webkit-overflow-scrolling:touch]">
-          <table class="table-auto bg-bg text-left gap-3 w-full">
+          <table className="table-auto bg-bg text-left gap-3 w-full">
             <thead className="bg-[#E5EEFF] text-sm font-semibold font-sans leading-4 tracking-wider">
               <tr>
                 <th className="p-2">Timestamp</th>
