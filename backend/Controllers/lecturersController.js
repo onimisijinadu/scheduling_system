@@ -9,6 +9,7 @@ exports.getAllLecturers = AsyncErrorHandler(async (req, res, next) => {
   u.full_name,
   u.email,
   l.lecturer_rank,
+  l.lecturer_status,
   l.invigilation_per_week,
   d.id AS department_id,
   d.department_name,
@@ -36,7 +37,7 @@ exports.getAllLecturers = AsyncErrorHandler(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    body: {
+    data: {
       lecturers: lecturers.rows,
     },
   });
@@ -52,6 +53,7 @@ exports.getLecturerById = AsyncErrorHandler(async (req, res, next) => {
             u.full_name,
             u.email,
             l.lecturer_rank,
+            l.lecturer_status,
             l.invigilation_per_week,
             d.id AS department_id,
             d.department_name,
@@ -85,7 +87,7 @@ exports.getLecturerById = AsyncErrorHandler(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    body: {
+    data: {
       lecturer: result.rows[0],
     },
   });
@@ -110,7 +112,7 @@ exports.createLecturer = AsyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Lecturer profile created successfully",
-    body: {
+    data: {
       lecturers: (result.rows.length = 1 ? result.rows[0] : result.rows),
     },
   });
@@ -153,7 +155,7 @@ exports.updateLecturer = AsyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     status: "Success",
     message: "Lecturer Successfully updated",
-    body: {
+    data: {
       lecturers: result.rows[0],
     },
   });
@@ -173,6 +175,6 @@ exports.deleteLecturer = AsyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: `Lecturer profile removed successfully`,
-    body: null,
+    data: null,
   });
 });

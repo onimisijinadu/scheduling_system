@@ -8,6 +8,7 @@ import { PlusIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 import { Button } from '../../../component/Button';
+import { Pagination } from '../../../component/Pagination';
 import { SelectOptions } from '../../../component/selectOption';
 import {
   Table,
@@ -190,27 +191,14 @@ export const CoursesTable = () => {
           <div className="flex justify-between items-center whitespace-nowrap gap-4 py-3  px-4 bg-[#F8FAFC] border-t border-t-[#CBD5E1]">
             <div className="font-sans regular text-sm leading-5 text-text-h">
               showing {FilteredCourses.length === 0 ? 0 : startIndex + 1} to{" "}
-              {endIndex} of {courses.length} entries
+              {Math.ceil(endIndex, FilteredCourses)} of {FilteredCourses.length}{" "}
+              entries
             </div>
-            <div className="flex items-center gap-4">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className={`px-3 py-1 bg-bg border border-border rounded-sm regular font-sans text-sm leading-5 disabled:text-text-h disabled:cursor-not-allowed  disabled:hidden text-text`}
-              >
-                Previous
-              </button>
-
-              <button
-                disabled={
-                  currentPage === totalPages || FilteredCourses.length === 0
-                }
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className={`px-3 py-1 bg-bg border border-border rounded-sm regular font-sans text-sm leading-5 disabled:text-text-h disabled:cursor-not-allowed disabled:hidden text-text`}
-              >
-                Next
-              </button>
-            </div>
+            <Pagination
+              page={currentPage}
+              totalPage={totalPages}
+              onChange={(value) => setCurrentPage(value)}
+            />
           </div>
         </TableWrapper>
       )}

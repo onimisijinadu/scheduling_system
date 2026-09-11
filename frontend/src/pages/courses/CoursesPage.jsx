@@ -8,7 +8,7 @@ export const CoursesPage = () => {
   const [selectedButton, setSelectedButton] = useState("courses");
 
   return (
-    <div classNAME="overflow-hidden">
+    <div>
       <div className="flex border-b border-b-border w-full ">
         <button
           onClick={() => setSelectedButton("courses")}

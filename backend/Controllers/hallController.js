@@ -43,12 +43,18 @@ exports.createHalls = asyncErrorHandler(async (req, res, next) => {
   const valuesPlaceholder = halls.map((hall, index) => {
     const offset = index * 3;
 
-    values.push(hall.hall_name, hall.capacity, hall.id);
+    values.push(
+      hall.hall_name,
+      hall.exam_capacity,
+      hall.total_seats,
+      hall.hall_code,
+      hall.status,
+    );
 
     return `($${offset + 1}, $${offset + 2}, $${offset + 3})`;
   });
 
-  const query = `INSERT INTO halls(hall_name, capacity) VALUES${valuesPlaceholder.join(", ")} RETURNING *`;
+  const query = `INSERT INTO halls(hall_name, exam_capacity, total_seats, hall_code, status ) VALUES${valuesPlaceholder.join(", ")} RETURNING *`;
 
   const result = await pool.query(query, values);
 
@@ -63,16 +69,16 @@ exports.createHalls = asyncErrorHandler(async (req, res, next) => {
 
 exports.updateHall = asyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { hall_name, capacity } = req.body;
+  const { hall_name, exam_capacity, total_seats, hall_code, status } = req.body;
 
-  if (!hall_name || !capacity) {
+  if (!hall_name || !exam_capacity || !total_seats || !hall_code || !status) {
     const err = new customError("Please provide hall name and capacity", 400);
     return next(err);
   }
 
-  const query = `UPDATE halls SET hall_name = $1, capacity = $2 WHERE id=$3 RETURNING *`;
+  const query = `UPDATE halls SET hall_name = $1, exam_capacity = $2, total_seats = $3, hall_code = $4, status = $5 WHERE id=$6 RETURNING *`;
 
-  const values = [hall_name, capacity, id];
+  const values = [hall_name, exam_capacity, total_seats, hall_code, status, id];
 
   const hall = await pool.query(query, values);
 

@@ -46,7 +46,7 @@ const NavLinks = [
   },
 ];
 
-export const SideBar = ({ rel, isOpen, toggleSideBar }) => {
+export const SideBar = ({ rel, isOpen, toggleSideBar, onLogout }) => {
   const location = useLocation();
 
   const handleClick = () => {
@@ -93,7 +93,10 @@ export const SideBar = ({ rel, isOpen, toggleSideBar }) => {
           })}
         </div>
       </div>
-      <div className="flex flex-row items-center gap-2 w-full px-9 py-6 text-sm regular cursor-pointer text-[#3E4850]">
+      <div
+        onClick={onLogout}
+        className="flex flex-row items-center gap-2 w-full px-9 py-6 text-sm regular cursor-pointer text-[#3E4850]"
+      >
         <ArrowLeftSquare className="w-5 h-5" /> Logout
       </div>
     </div>

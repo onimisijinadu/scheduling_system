@@ -4,13 +4,17 @@ import {
   useState,
 } from 'react';
 
-import { Outlet } from 'react-router';
+import {
+  Outlet,
+  useNavigate,
+} from 'react-router';
 
 import { SideBar } from '../../component/SideBar';
 import { TopBar } from '../../component/TopBar';
 
 export const DashboardLayout = () => {
   const sideNavRef = useRef(null);
+  const navigate = useNavigate();
 
   const [sidebarToggle, setSideBarToggle] = useState(false);
 
@@ -27,6 +31,7 @@ export const DashboardLayout = () => {
         rel={sideNavRef}
         toggleSideBar={handleClick}
         isOpen={sidebarToggle}
+        onLogout={() => navigate("/login")}
       />
       <div className="flex flex-1 flex-col">
         <TopBar toggleSideBar={handleClick} isOpen={sidebarToggle} />

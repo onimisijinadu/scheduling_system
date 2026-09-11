@@ -2,7 +2,8 @@
 const BASEURL =
   import.meta.env?.VITE_API_BASE_URL ||
   process.env?.REACT_BASE_URL ||
-  "http://localhost:5000/api/v1";
+  "http://localhost:5000/api/v1" ||
+  "https://sqg56fdb-5000.uks1.devtunnels.ms/api/v1";
 
 export const API_ENDPOINTS = {
   COURSES: `${BASEURL}/courses`,
