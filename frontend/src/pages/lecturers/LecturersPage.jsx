@@ -73,7 +73,7 @@ const schedule = [
 ];
 export const LecturersPage = () => {
   return (
-    <div className="flex flex-col gap-4 p-[20px] md:p-[32px] ">
+    <div className="flex flex-col gap-4 md:p-[32px] mx-auto">
       <Header activeUser={data} />
       <div className="flex flex-col justify-between md:flex-row gap-4">
         <Profile user={data} />
