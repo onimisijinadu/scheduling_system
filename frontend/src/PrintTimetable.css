@@ -1,0 +1,129 @@
+/* Container for the paper document */
+.timetable-document {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #000000;
+  font-family: "Times New Roman", Times, serif;
+  padding: 24px;
+}
+
+/* Header matching the notice board sheet */
+.timetable-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.timetable-header h1 {
+  font-size: 20pt;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.timetable-header h2 {
+  font-size: 18pt;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin: 0;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+/* The Table Grid */
+.official-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  line-height: 1.25;
+}
+
+.official-table th,
+.official-table td {
+  border: 1.5px solid #000000;
+  padding: 5px 6px;
+  vertical-align: middle;
+}
+
+.official-table th {
+  text-align: center;
+  font-weight: bold;
+  font-size: 10pt;
+  letter-spacing: 0.5px;
+  background-color: #f2f2f2;
+}
+
+/* Center-aligned metadata columns */
+.cell-center {
+  text-align: center;
+}
+
+/* Column widths matching the physical sheet */
+.col-date {
+  width: 14%;
+  font-weight: bold;
+}
+.col-time {
+  width: 16%;
+}
+.col-courses {
+  width: 34%;
+}
+.col-enrol {
+  width: 8%;
+  text-align: center;
+  font-weight: bold;
+}
+.col-venue {
+  width: 16%;
+  font-size: 8.5pt;
+  text-align: center;
+}
+.col-invig {
+  width: 12%;
+}
+
+/* Course list item */
+.course-line {
+  margin: 2px 0;
+  display: block;
+}
+
+/* ==============================================================
+   BROWSER PRINT & PDF EXPORT RULES
+   ============================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 10mm 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide navigation bars, search inputs, and download buttons */
+  .no-print,
+  header,
+  nav,
+  button {
+    display: none !important;
+  }
+
+  .timetable-document {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Prevent table rows from splitting mid-cell across two pages */
+  tr {
+    page-break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group; /* Repeats table headers on page 2 if multi-page */
+  }
+}

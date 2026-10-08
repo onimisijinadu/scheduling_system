@@ -1,5 +1,5 @@
 export const parseBlockDate = (dateString) => {
-  if (!dateString) return { month: "---", day: "--" };
+  if (!dateString) return { month: "---", day: "--", year: "--" };
 
   // If it's only YYYY-MM-DD, append T00:00:00 to prevent timezone drift; otherwise parse as-is
   const formattedString =
@@ -11,16 +11,16 @@ export const parseBlockDate = (dateString) => {
 
   // Check if date is valid
   if (isNaN(date.getTime())) {
-    return { month: "ERR", day: "!" };
+    return { month: "ERR", day: "!", year: "ERR" };
   }
 
   const day = date.toLocaleDateString("en-US", { day: "2-digit" });
-
   const month = date
     .toLocaleDateString("en-US", { month: "short" })
     .toUpperCase();
+  const year = date.toLocaleDateString("en-US", { year: "numeric" });
 
-  return { month, day };
+  return { month, day, year };
 };
 
 // export const parseBlockDate = (dateString) => {

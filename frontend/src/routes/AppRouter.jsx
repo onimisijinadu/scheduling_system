@@ -17,7 +17,6 @@ import {
 import { LecturersPage } from '../pages/lecturers/LecturersPage';
 import { MasterTimeTable } from '../pages/master_timetable/MasterTimetable';
 import { NlpCommandInterface } from '../pages/nlp_commands/NlpCommandInterface';
-import { Venues } from '../pages/venues/Venues';
 
 export const AppRouter = () => {
   return (
@@ -41,7 +40,7 @@ export const AppRouter = () => {
             path="/dashboard/nlp_command_interface"
             element={<NlpCommandInterface />}
           />
-          <Route path="/dashboard/venues" element={<Venues />} />
+
           {/* Catch-all 404 redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Route>

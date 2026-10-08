@@ -94,8 +94,9 @@ exports.getLecturerById = AsyncErrorHandler(async (req, res, next) => {
 });
 
 exports.createLecturer = AsyncErrorHandler(async (req, res, next) => {
-  const { user_id, department_id, lecturer_rank, invigilation_per_week } =
-    req.body;
+  const data = req.body.lecturers !== undefined ? req.body.lecturers : req.body;
+
+  const { user_id, department_id, lecturer_rank, invigilation_per_week } = data;
 
   if (!user_id || !department_id || !lecturer_rank || !invigilation_per_week) {
     return next(
@@ -120,8 +121,20 @@ exports.createLecturer = AsyncErrorHandler(async (req, res, next) => {
 
 exports.updateLecturer = AsyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { user_id, department_id, lecturer_rank, invigilation_per_week } =
-    req.body;
+
+  const data = req.body.lecturers !== undefined ? req.body.lecturers : req.body;
+
+  const {
+    user_id,
+    department_id,
+    email,
+    full_name,
+    invigilation_per_week,
+    lecturer_id,
+    lecturer_rank,
+    lecturer_status,
+    assigned_courses,
+  } = data;
 
   if (!user_id || !department_id || !lecturer_rank || !invigilation_per_week) {
     return next(
@@ -129,42 +142,84 @@ exports.updateLecturer = AsyncErrorHandler(async (req, res, next) => {
     );
   }
 
-  const query = `UPDATE lecturers 
-        SET 
-            user_id = $1,
-            department_id = $2,
-            lecturer_rank = $3,
-            invigilation_per_week = $4,
-            WHERE id = $5
-        RETURNING *`;
+  const client = await pool.connect();
 
-  const values = [
-    user_id,
-    department_id,
-    lecturer_rank,
-    invigilation_per_week,
-    id,
-  ];
+  try {
+    await client.query("BEGIN");
 
-  const result = await pool.query(query, values);
+    const updateUser = `UPDATE users SET full_name = $1, email = $2 WHERE id = $3 RETURNING *`;
 
-  if (result.rows.length === 0) {
-    return next(new customError("Lecturer not found", 404));
+    const userValues = [full_name, email, user_id];
+
+    const userResult = await client.query(updateUser, userValues);
+
+    if (userResult.rows.length === 0) {
+      return next(new customError("User not found", 404));
+    }
+
+    const updateLecturer = `UPDATE lecturers 
+          SET 
+              user_id = $1,
+              department_id = $2,
+              lecturer_rank = $3,
+              invigilation_per_week = $4,
+              lecturer_status = $5
+          WHERE id = $6
+          RETURNING *`;
+
+    const lecturerValues = [
+      user_id,
+      department_id,
+      lecturer_rank,
+      invigilation_per_week,
+      lecturer_status,
+      lecturer_id,
+    ];
+
+    const result = await client.query(updateLecturer, lecturerValues);
+
+    if (result.rows.length === 0) {
+      return next(new customError("Lecturer not found", 404));
+    }
+
+    if (assigned_courses && assigned_courses.length > 0) {
+      await client.query(
+        "DELETE FROM course_lecturers WHERE lecturers_id = $1",
+        [lecturer_id],
+      );
+
+      for (const course of assigned_courses) {
+        // const { course_id, is_lead } = course;
+        const courseId = course.course_id || course.id; // Use course_id if available, otherwise use id;
+        const isLead = course.is_lead || false; // Default to false if is_lead is not provided;
+        await client.query(
+          `INSERT INTO course_lecturers (course_id, lecturers_id, is_lead) VALUES ($1, $2, $3)`,
+          [courseId, lecturer_id, isLead],
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      status: "Success",
+      message: "Lecturer Successfully updated",
+      data: {
+        lecturers: result.rows[0],
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    return next(error);
+  } finally {
+    client.release();
   }
-
-  res.status(200).json({
-    status: "Success",
-    message: "Lecturer Successfully updated",
-    data: {
-      lecturers: result.rows[0],
-    },
-  });
 });
 
 exports.deleteLecturer = AsyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  const query = `DELETE * FROM lecturers WHERE id = $1 RETURNING *`;
+  const query = `DELETE FROM lecturers WHERE id = $1 RETURNING *`;
 
   const result = await pool.query(query, [id]);
 

@@ -56,7 +56,7 @@ export const SideBar = ({ rel, isOpen, toggleSideBar, onLogout }) => {
   };
   return (
     <div
-      rel={rel}
+      ref={rel}
       className={`fixed lg:static flex flex-col justify-between items-center h-dvh transform tarnsition-transform duration-300 z-10 w-[256px] bg-bg border-r border-r-[#BDC8D1] ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
     >
       <div className="gap-2 px-4 py-6 w-full">

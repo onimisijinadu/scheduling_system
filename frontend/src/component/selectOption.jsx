@@ -1,7 +1,5 @@
 export const SelectOptions = ({
   children,
-  id,
-  name,
   className,
   labelClassName,
   label,
@@ -16,8 +14,8 @@ export const SelectOptions = ({
       >
         {label}
         <select
-          name={name}
-          id={id}
+          name={labelFor}
+          id={labelFor}
           {...props}
           className={`${className ? className : "outline-none h-13 px-4 py-3 rounded-sm border border-[#BDC8D1] text-base regular leading-6 text-text"} `}
         >

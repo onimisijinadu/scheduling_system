@@ -81,7 +81,8 @@ exports.getCourseById = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.createCourse = asyncErrorHandler(async (req, res, next) => {
-  const rawData = req.body.courses || req.body;
+  // 1. Normalize input to always be an array of course objects
+  let rawData = req.body.courses !== undefined ? req.body.courses : req.body;
 
   if (!rawData || (Array.isArray(rawData) && rawData.length === 0)) {
     const err = new customError("No data found", 400);
@@ -89,38 +90,74 @@ exports.createCourse = asyncErrorHandler(async (req, res, next) => {
   }
 
   const courses = Array.isArray(rawData) ? rawData : [rawData];
+  const client = await pool.connect();
 
-  const values = [];
+  try {
+    await client.query("BEGIN");
 
-  const placeholder = courses.map((course, index) => {
-    const offset = index * 6;
+    const values = [];
 
-    values.push(
-      course.course_code,
-      course.course_title,
-      course.course_level,
-      course.course_unit,
-      course.total_enrolled,
-      course.department_id,
-    );
+    const placeholder = courses.map((course, index) => {
+      const offset = index * 6;
 
-    return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
-  });
+      values.push(
+        course.course_code,
+        course.course_title,
+        course.course_level,
+        course.course_unit,
+        course.total_enrolled,
+        course.department_id,
+      );
 
-  const query = `INSERT INTO courses(course_code, course_title, course_level, course_unit, total_enrolled, department_id ) VALUES${placeholder.join(", ")} RETURNING *`;
+      return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
+    });
 
-  const result = await pool.query(query, values);
-  res.status(200).json({
-    status: "Success",
-    message: "courses created successfully!..",
-    data: {
-      courses: result.rows.length === 1 ? result.rows[0] : result.rows,
-    },
-  });
+    const query = `INSERT INTO courses(course_code, course_title, course_level, course_unit, total_enrolled, department_id ) VALUES${placeholder.join(", ")} RETURNING *`;
+
+    const result = await client.query(query, values);
+
+    const courseLecturers = [];
+    const courseLecturersPlaceholder = [];
+
+    result.rows.forEach((course, index) => {
+      const originalCourse = courses[index];
+      const lecturerId = originalCourse.lecturer_id;
+
+      if (lecturerId) {
+        const offSet = courseLecturers.length;
+        courseLecturers.push(course.id, lecturerId, true);
+        courseLecturersPlaceholder.push(
+          `($${offSet + 1}, $${offSet + 2}, $${offSet + 3})`,
+        );
+      }
+    });
+
+    if (courseLecturers.length > 0) {
+      const query = `INSERT INTO course_lecturers(course_id, lecturers_id, is_lead) VALUES ${courseLecturersPlaceholder.join(", ")} `;
+      await client.query(query, courseLecturers);
+    }
+
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      status: "Success",
+      message: "courses created successfully!..",
+      data: {
+        courses: result.rows.length === 1 ? result.rows[0] : result.rows,
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    return next(error);
+  } finally {
+    client.release();
+  }
 });
 
 exports.updateCourse = asyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
+  const data = req.body.courses || req.body;
+
   const {
     course_code,
     course_title,
@@ -128,40 +165,71 @@ exports.updateCourse = asyncErrorHandler(async (req, res, next) => {
     course_unit,
     total_enrolled,
     department_id,
-  } = req.body;
+    lecturer_id,
+  } = data;
 
-  const query = `UPDATE courses SET course_code = $1,
-      course_title = $2,
-      course_level = $3,
-      course_unit = $4,
-      total_enrolled = $5,
-      department_id = $6
-    WHERE id = $7 RETURNING *`;
+  const client = await pool.connect();
 
-  const values = [
-    course_code,
-    course_title,
-    course_level,
-    course_unit,
-    total_enrolled,
-    department_id,
-    id,
-  ];
+  try {
+    await client.query("BEGIN");
 
-  const result = await pool.query(query, values);
+    const query = `UPDATE courses SET course_code = $1,
+        course_title = $2,
+        course_level = $3,
+        course_unit = $4,
+        total_enrolled = $5,
+        department_id = $6
+        WHERE id = $7 RETURNING *`;
 
-  if (result.rows.length === 0) {
-    const err = new customError("Course not found", 404);
-    return next(err);
+    const values = [
+      course_code,
+      course_title,
+      course_level,
+      course_unit,
+      total_enrolled,
+      department_id,
+      id,
+    ];
+
+    const courseResult = await client.query(query, values);
+
+    if (courseResult.rows.length === 0) {
+      const err = new customError("Course not found", 404);
+      return next(err);
+    }
+
+    // Step A: Reset any existing lead lecturer for this course
+    await client.query(
+      `UPDATE course_lecturers 
+       SET is_lead = false 
+       WHERE course_id = $1 AND is_lead = true`,
+      [id],
+    );
+
+    if (lecturer_id && lecturer_id !== "") {
+      const insertCourseLecturer = `INSERT INTO course_lecturers(course_id, lecturers_id, is_lead) 
+      VALUES($1,$2,true) 
+      ON CONFLICT(course_id, lecturers_id)
+      DO UPDATE SET is_lead = true`;
+
+      await client.query(insertCourseLecturer, [id, Number(lecturer_id)]);
+    }
+
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      status: "success",
+      message: "Course updated successfully",
+      data: {
+        courses: courseResult.rows[0],
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    return next(error);
+  } finally {
+    client.release();
   }
-
-  res.status(200).json({
-    status: "success",
-    message: "Course updated successfully",
-    data: {
-      courses: result.rows[0],
-    },
-  });
 });
 
 exports.deleteCourse = asyncErrorHandler(async (req, res, next) => {
@@ -184,47 +252,47 @@ exports.deleteCourse = asyncErrorHandler(async (req, res, next) => {
   });
 });
 
-exports.assignLecturerToCourse = asyncErrorHandler(async (req, res, next) => {
-  //The course ID comes from the URL endpoint: POST /api/courses/1/lecturers $\rightarrow$ req.params.id = 1.
-  const { id: course_id } = req.params;
+// exports.assignLecturerToCourse = asyncErrorHandler(async (req, res, next) => {
+//   //The course ID comes from the URL endpoint: POST /api/courses/1/lecturers $\rightarrow$ req.params.id = 1.
+//   const { id: course_id } = req.params;
 
-  const { lecturers_id, is_lead } = req.body;
+//   const { lecturers_id, is_lead } = req.body;
 
-  if (!lecturers_id) {
-    const err = new customError("lecturers_id is required", 400);
-    return next(err);
-  }
+//   if (!lecturers_id) {
+//     const err = new customError("lecturers_id is required", 400);
+//     return next(err);
+//   }
 
-  // If this lecturer is being marked as Lead, strip the lead title from any previous lecturer for this course
-  if (is_lead) {
-    await pool.query(
-      "UPDATE course_lecturers SET is_lead = FALSE WHERE course_id = $1",
-      [course_id],
-    );
-  }
+//   // If this lecturer is being marked as Lead, strip the lead title from any previous lecturer for this course
+//   if (is_lead) {
+//     await pool.query(
+//       "UPDATE course_lecturers SET is_lead = FALSE WHERE course_id = $1",
+//       [course_id],
+//     );
+//   }
 
-  const query = `INSERT INTO 
-                  course_lecturers(course_id, lecturers_id, is_lead) 
-                  VALUES($1,$2,$3) 
-                  ON CONFLICT (course_id, lecturers_id) 
-                  DO UPDATE SET is_lead = EXCLUDED.is_lead
-                  RETURNING *`;
-  const values = [course_id, lecturers_id, is_lead];
+//   const query = `INSERT INTO
+//                   course_lecturers(course_id, lecturers_id, is_lead)
+//                   VALUES($1,$2,$3)
+//                   ON CONFLICT (course_id, lecturers_id)
+//                   DO UPDATE SET is_lead = EXCLUDED.is_lead
+//                   RETURNING *`;
+//   const values = [course_id, lecturers_id, is_lead];
 
-  const result = await pool.query(query, values);
+//   const result = await pool.query(query, values);
 
-  if (result.rows.length === 0) {
-    return next(new customError("Not found", 404));
-  }
+//   if (result.rows.length === 0) {
+//     return next(new customError("Not found", 404));
+//   }
 
-  res.status(200).json({
-    status: "success",
-    message: "Lecturer assigned successfully",
-    body: {
-      course_lecturers: result.rows[0],
-    },
-  });
-});
+//   res.status(200).json({
+//     status: "success",
+//     message: "Lecturer assigned successfully",
+//     body: {
+//       course_lecturers: result.rows[0],
+//     },
+//   });
+// });
 exports.removeLectuer = asyncErrorHandler(async (req, res, next) => {
   const { id: course_id, lecturer_id: lecturers_id } = req.params;
   const query = `DELETE FROM course_lecturers WHERE id=$1 AND lecturers_id = $2 RETURNING *`;

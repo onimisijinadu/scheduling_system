@@ -23,7 +23,14 @@ export const DashboardLayout = () => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {};
+    const handleClickOutside = (event) => {
+      if (sideNavRef.current && !sideNavRef.current.contains(event.target)) {
+        setSideBarToggle(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   return (
     <div className="flex h-screen max-w-screen overflow-y-auto relative">

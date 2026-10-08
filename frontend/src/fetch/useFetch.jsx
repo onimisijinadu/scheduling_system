@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -7,6 +8,13 @@ export const useFetch = (dataUrl, itemKey) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [refetchIndex, setRefetchIndex] = useState(0);
+
+  const refetchData = useCallback(() => {
+    setRefetchIndex((prev) => prev + 1);
+  }, []);
+
   useEffect(() => {
     if (!dataUrl) {
       return;
@@ -44,7 +52,7 @@ export const useFetch = (dataUrl, itemKey) => {
 
     // Cleanup on unmount or URL change
     return () => controller.abort();
-  }, [dataUrl, itemKey]);
+  }, [dataUrl, itemKey, refetchIndex]);
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, setData, refetchData };
 };
